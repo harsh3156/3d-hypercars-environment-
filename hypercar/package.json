@@ -1,0 +1,26 @@
+{
+  "name": "hypercar-landing",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "framer-motion": "^11.0.0",
+    "three": "^0.162.0",
+    "@react-three/fiber": "^8.15.0",
+    "@react-three/drei": "^9.99.0",
+    "gsap": "^3.12.4",
+    "lenis": "^1.0.42"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "devDependencies": {
+    "react-scripts": "5.0.1"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  }
+}
