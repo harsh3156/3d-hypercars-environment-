@@ -10,6 +10,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, useInView } from 'framer-motion';
+import { fetchCars, fetchPriceSummary } from './utils/api';
 
 /* ═══════════════════════════════════════════════
    CONSTANTS & CONFIG
@@ -33,7 +34,37 @@ const TICKER_ITEMS = [
   'LAUNCH YEAR: 2035', 'PRODUCTION: 88 UNITS',
 ];
 
-const NAV_ITEMS = ['MODELS', 'TECH', 'PERFORMANCE', 'CONTACT'];
+const NAV_ITEMS = [
+  { label: 'MODELS', targetId: 'models' },
+  { label: 'TECH', targetId: 'tech' },
+  { label: 'PERFORMANCE', targetId: 'performance' },
+  { label: 'CONTACT', targetId: 'contact' },
+];
+
+const MODEL_CHOICES = [
+  { name: 'REVUELTO', badge: 'V12 HYBRID', blurb: '1001 CV / 2.4s to 100' },
+  { name: 'SF90', badge: 'PHEV', blurb: '986 CV / AWD precision' },
+  { name: 'CHIRON', badge: 'W16', blurb: '1578 CV / ultimate luxury' },
+];
+
+const TECH_FEATURES = [
+  { title: 'ACTIVE AERO', text: 'Adaptive wings and active ground effects keep the car pinned to the road.' },
+  { title: 'INTELLIGENT TORQUE', text: 'Instant electric response blends with the combustion engine for seamless acceleration.' },
+  { title: 'DIGITAL COCKPIT', text: 'Immersive HUDs, telemetry, and driver-focused controls keep every detail in sight.' },
+];
+
+const PERFORMANCE_POINTS = [
+  { label: '0–100 KM/H', value: '2.4S' },
+  { label: 'TOP SPEED', value: '355 KM/H' },
+  { label: 'POWER', value: '1001 CV' },
+  { label: 'DOWNFORCE', value: '585 KG' },
+];
+
+const CONTACT_DETAILS = [
+  { label: 'EMAIL', value: 'hello@veloxhypercraft.com' },
+  { label: 'PHONE', value: '+1 (800) 555-0148' },
+  { label: 'SHOWROOM', value: 'Dubai, Monaco, Milan' },
+];
 
 const HERO_WORDS = 'ENGINEERED BEYOND THE LIMITS OF MODERN PERFORMANCE'.split(' ');
 const HIGHLIGHT_WORDS = new Set(['BEYOND', 'LIMITS']);
@@ -543,9 +574,11 @@ function Emblem() {
 /* ═══════════════════════════════════════════════
    CTA BUTTON
 ═══════════════════════════════════════════════ */
-function CTAButton({ children }) {
+function CTAButton({ children, id, onClick }) {
   return (
     <motion.button
+      id={id}
+      onClick={onClick}
       whileHover={{ scale: 1.04, y: -2 }}
       whileTap={{ scale: 0.97, y: 1 }}
       transition={{ type: 'spring', stiffness: 380, damping: 20 }}
@@ -587,6 +620,72 @@ function Ticker() {
 export default function HypercarlLanding() {
   useGlobalStyles();
   const [isHovering, setIsHovering] = useState(false);
+  const [cars, setCars] = useState([]);
+  const [selectedCarId, setSelectedCarId] = useState('');
+  const [priceSummary, setPriceSummary] = useState(null);
+  const [loadingCars, setLoadingCars] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadInventory = async () => {
+      try {
+        const inventory = await fetchCars();
+        if (!cancelled) {
+          setCars(inventory);
+          if (inventory[0]) {
+            setSelectedCarId(inventory[0]._id || inventory[0].id);
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setErrorMessage(err.message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingCars(false);
+        }
+      }
+    };
+
+    loadInventory();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCarId) return;
+
+    let cancelled = false;
+    const refreshSummary = async () => {
+      try {
+        const summary = await fetchPriceSummary(selectedCarId, {});
+        if (!cancelled) {
+          setPriceSummary(summary);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setPriceSummary(null);
+        }
+      }
+    };
+
+    refreshSummary();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCarId]);
+
+  const selectedCar = cars.find((car) => (car._id || car.id) === selectedCarId) || cars[0] || null;
+
+  const scrollToSection = (targetId) => {
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div style={{ position: 'relative', width: '100vw', height: '100vh',
@@ -654,16 +753,18 @@ export default function HypercarlLanding() {
 
           <div style={{ display:'flex', gap:28 }}>
             {NAV_ITEMS.map((item, i) => (
-              <motion.span key={item}
+              <motion.button key={item.label}
                 initial={{ opacity:0, y:-10 }} animate={{ opacity:1, y:0 }}
                 transition={{ delay:0.2+i*0.07 }}
                 whileHover={{ color:ACCENT, y:-1 }}
                 data-hover="true"
+                onClick={() => scrollToSection(item.targetId)}
                 style={{ fontFamily:FONT_DISPLAY, fontSize:9, fontWeight:500,
                   color:'rgba(255,255,255,0.42)', letterSpacing:'0.22em', textTransform:'uppercase',
-                  cursor:'none', userSelect:'none', display:'inline-block' }}>
-                {item}
-              </motion.span>
+                  cursor:'none', userSelect:'none', display:'inline-block', border:'none', padding:0,
+                  background:'transparent', textAlign:'left' }}>
+                {item.label}
+              </motion.button>
             ))}
           </div>
         </motion.div>
@@ -700,11 +801,16 @@ export default function HypercarlLanding() {
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end',
           gap:16, flexWrap:'wrap', pointerEvents:'auto' }}>
 
-          <StatsCard />
+          <div id="tech" style={{ display:'flex', flexDirection:'column', gap:12, alignItems:'flex-start' }}>
+            <div style={{ fontFamily: FONT_MONO, fontSize: 7, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.24em', textTransform: 'uppercase' }}>
+              LIVE BACKEND CONNECTED
+            </div>
+            <StatsCard />
+          </div>
 
-          <motion.div initial={{ opacity:0, x:42 }} animate={{ opacity:1, x:0 }}
+          <motion.div id="performance" initial={{ opacity:0, x:42 }} animate={{ opacity:1, x:0 }}
             transition={{ duration:1.05, delay:0.85, ease:[0.16,1,0.3,1] }}
-            style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:11, maxWidth:360 }}>
+            style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:11, maxWidth:420 }}>
             <div style={{ fontFamily:FONT_DISPLAY, fontSize:'clamp(10px, 1.55vw, 14px)', fontWeight:700,
               color:'#fff', letterSpacing:'0.17em', textTransform:'uppercase', textAlign:'right',
               lineHeight:1.48, textShadow:'0 0 30px rgba(0,0,0,0.95)' }}>
@@ -714,7 +820,80 @@ export default function HypercarlLanding() {
               color:'rgba(255,255,255,0.32)', letterSpacing:'0.22em', textTransform:'uppercase', textAlign:'right' }}>
               / ghost — Downforce Optimization &amp; Performance Dynamics
             </div>
-            <CTAButton>THE SCIENCE OF SPEED</CTAButton>
+
+            <div id="models" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.2)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
+                {loadingCars ? 'SYNCING WITH BACKEND…' : errorMessage ? 'BACKEND OFFLINE' : 'LIVE INVENTORY'}
+              </div>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom: 10 }}>
+                {cars.map((car) => {
+                  const carId = car._id || car.id;
+                  return (
+                    <button key={carId} onClick={() => setSelectedCarId(carId)} style={{ border: `1px solid ${selectedCar && (selectedCar._id || selectedCar.id) === carId ? ACCENT : 'rgba(255,255,255,0.14)'}`, background: selectedCar && (selectedCar._id || selectedCar.id) === carId ? 'rgba(255,59,0,0.12)' : 'rgba(255,255,255,0.04)', color: '#fff', padding:'7px 10px', fontFamily: FONT_MONO, fontSize: 7, letterSpacing: '0.16em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                      {car.brand}
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedCar ? (
+                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                  <div style={{ fontFamily: FONT_DISPLAY, fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                    {selectedCar.brand} {selectedCar.model}
+                  </div>
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 10, color: 'rgba(255,255,255,0.58)' }}>
+                    {selectedCar.specs?.horsepower || '—'} hp • {selectedCar.specs?.topSpeed || '—'} km/h
+                  </div>
+                  {priceSummary ? (
+                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 9, color: ACCENT, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 4 }}>
+                      EST. {priceSummary.totalPrice?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '—'}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+
+            <div id="tech" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.18)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
+                TECHNOLOGY
+              </div>
+              <div style={{ display:'grid', gap:8 }}>
+                {TECH_FEATURES.map((feature) => (
+                  <div key={feature.title} style={{ padding:'8px 10px', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,255,255,0.06)', borderRadius:8 }}>
+                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: '#fff', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 2 }}>{feature.title}</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 10, color: 'rgba(255,255,255,0.58)' }}>{feature.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div id="performance" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.18)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
+                PERFORMANCE
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                {PERFORMANCE_POINTS.map((point) => (
+                  <div key={point.label} style={{ padding:'8px 10px', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,255,255,0.06)', borderRadius:8 }}>
+                    <div style={{ fontFamily: FONT_MONO, fontSize: 7, color: 'rgba(255,255,255,0.32)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 2 }}>{point.label}</div>
+                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 11, color: '#fff', fontWeight: 700 }}>{point.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div id="contact" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.18)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
+              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
+                CONTACT
+              </div>
+              <div style={{ display:'grid', gap:6, marginBottom: 10 }}>
+                {CONTACT_DETAILS.map((item) => (
+                  <div key={item.label} style={{ display:'flex', justifyContent:'space-between', gap:12, fontFamily: FONT_MONO, fontSize: 7, color:'rgba(255,255,255,0.6)', letterSpacing:'0.16em', textTransform:'uppercase' }}>
+                    <span>{item.label}</span>
+                    <span style={{ color: '#fff' }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+              <CTAButton id="contact-cta" onClick={() => window.location.href = 'mailto:hello@veloxhypercraft.com'}>BOOK A PRIVATE TOUR</CTAButton>
+            </div>
           </motion.div>
         </div>
       </div>
