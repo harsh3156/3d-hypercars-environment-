@@ -66,6 +66,61 @@ const CONTACT_DETAILS = [
   { label: 'SHOWROOM', value: 'Dubai, Monaco, Milan' },
 ];
 
+const MODEL_SHOWCASES = [
+  {
+    name: 'REVUELTO V12 HYBRID',
+    badge: 'ARRIVAL 2035',
+    blurb: 'A 1001 CV hybrid weapon with active aero and a twin-layer carbon shell.',
+    metrics: ['1001 CV', '2.4s 0-100', '355 KM/H'],
+  },
+  {
+    name: 'AERON GT',
+    badge: 'LIMITED SERIES',
+    blurb: 'A sculpted grand tourer tuned for long-distance precision and silent electric thrust.',
+    metrics: ['860 CV', '2.8s 0-100', '330 KM/H'],
+  },
+  {
+    name: 'NOVA SPYDER',
+    badge: 'TRACK EDITION',
+    blurb: 'Low-drag, high-downforce engineering focused on razor-sharp corner entry.',
+    metrics: ['910 CV', '2.5s 0-100', '340 KM/H'],
+  },
+];
+
+const TECH_PILLARS = [
+  {
+    title: 'ACTIVE AERO',
+    text: 'Adaptive wings, rear diffuser control, and predictive ground-effect mapping keep every curve planted.',
+  },
+  {
+    title: 'AI TORQUE VECTORING',
+    text: 'A neural-assisted torque map refines grip delivery in real time, from city launch to full-throttle exits.',
+  },
+  {
+    title: 'IMMERSIVE COCKPIT',
+    text: 'A panoramic HUD, biometric climate tuning, and gesture control create a cockpit that feels like a command deck.',
+  },
+];
+
+const PERFORMANCE_TILES = [
+  { label: 'LAUNCH CONTROL', value: '0.9s' },
+  { label: 'BRAKING', value: '100-0: 31m' },
+  { label: 'CHARGE TIME', value: '18m' },
+  { label: 'RANGE', value: '690 KM' },
+];
+
+const CONTACT_OPTIONS = [
+  { title: 'PRIVATE VIEWING', text: 'Meet our engineers and inspect the full carbon monocoque in person.' },
+  { title: 'TEST DRIVE', text: 'Experience the launch and telemetry systems on a closed circuit.' },
+  { title: 'COLLECTOR PROGRAM', text: 'Reserve an allocation for bespoke finishes, bespoke leather, and one-off trim.' },
+];
+
+const FOOTER_LINKS = [
+  { label: 'Instagram', href: 'https://instagram.com' },
+  { label: 'LinkedIn', href: 'https://linkedin.com' },
+  { label: 'Mail', href: 'mailto:hello@veloxhypercraft.com' },
+];
+
 const HERO_WORDS = 'ENGINEERED BEYOND THE LIMITS OF MODERN PERFORMANCE'.split(' ');
 const HIGHLIGHT_WORDS = new Set(['BEYOND', 'LIMITS']);
 
@@ -79,6 +134,10 @@ const GLOBAL_CSS = `
   }
   @keyframes hc-ticker {
     0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  @keyframes hc-marquee {
+    0% { transform: translateX(0%); }
     100% { transform: translateX(-50%); }
   }
   @keyframes hc-progress {
@@ -245,11 +304,11 @@ function SpotlightReveal({ onHoverChange }) {
     <div ref={containerRef} onMouseMove={onMove}
       onMouseEnter={() => { setHovering(true); onHoverChange(true); }}
       onMouseLeave={() => { setHovering(false); onHoverChange(false); mx.set(-999); my.set(-999); }}
-      style={{ position: 'absolute', inset: 0, zIndex: 5 }}>
+      style={{ position: 'absolute', inset: 0, zIndex: 5, overflow: 'hidden' }}>
 
       {/* Static bg image */}
       <img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1600&q=85&fit=crop"
-        alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.72, zIndex: 1, pointerEvents: 'none' }}
+        alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%', opacity: 0.72, zIndex: 1, pointerEvents: 'none' }}
         onError={e => { e.target.src = 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&q=85&fit=crop'; }} />
 
       {/* Video layer with spotlight mask */}
@@ -600,17 +659,53 @@ function CTAButton({ children, id, onClick }) {
 function Ticker() {
   const t = [...TICKER_ITEMS, ...TICKER_ITEMS].join('   ·   ');
   return (
-    <div style={{ position: 'absolute', bottom: 38, left: 0, right: 0, zIndex: 20,
-      overflow: 'hidden', borderTop: '0.5px solid rgba(255,59,0,0.14)',
-      borderBottom: '0.5px solid rgba(255,59,0,0.14)', padding: '5px 0',
-      background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
-      <div style={{ display: 'inline-block', whiteSpace: 'nowrap',
-        fontFamily: FONT_DISPLAY, fontSize: 7, fontWeight: 500,
-        color: 'rgba(255,255,255,0.22)', letterSpacing: '0.26em', textTransform: 'uppercase',
-        animation: 'hc-ticker 28s linear infinite' }}>
-        {t}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{t}
+    <motion.footer
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 1.1 }}
+      style={{ position: 'relative', zIndex: 20, marginTop: 'auto', padding: '18px 28px 24px',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(0,0,0,0.82) 100%)',
+        borderTop: '1px solid rgba(255,59,0,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <motion.div animate={{ rotate: [0, 2, -2, 0], scale: [1, 1.04, 1] }} transition={{ duration: 4.2, repeat: Infinity }}>
+            <Emblem />
+          </motion.div>
+          <div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '0.28em', textTransform: 'uppercase' }}>VELOX HYPERCRAFT</div>
+            <div style={{ fontFamily: FONT_MONO, fontSize: 7.5, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Luxury performance, reimagined.</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {FOOTER_LINKS.map((link) => (
+            <motion.a
+              key={link.label}
+              href={link.href}
+              target={link.href.startsWith('http') ? '_blank' : '_self'}
+              rel="noreferrer"
+              whileHover={{ y: -2, color: ACCENT, scale: 1.02 }}
+              style={{ fontFamily: FONT_DISPLAY, fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.2em', textTransform: 'uppercase', textDecoration: 'none' }}>
+              {link.label}
+            </motion.a>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <div style={{ position: 'relative', overflow: 'hidden', borderTop: '1px solid rgba(255,255,255,0.08)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '8px 0', background: 'rgba(0,0,0,0.28)' }}>
+        <motion.div animate={{ x: ['0%', '-50%'] }} transition={{ duration: 18, repeat: Infinity, ease: 'linear' }} style={{ display: 'inline-flex', whiteSpace: 'nowrap', gap: '2.5rem', fontFamily: FONT_DISPLAY, fontSize: 7, fontWeight: 500, color: 'rgba(255,255,255,0.24)', letterSpacing: '0.26em', textTransform: 'uppercase' }}>
+          <span>{t}</span>
+          <span>{t}</span>
+        </motion.div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 7.5, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+          Crafted for those who demand presence, precision, and pulse.
+        </div>
+        <CTAButton id="footer-cta" onClick={() => window.location.href = 'mailto:hello@veloxhypercraft.com'}>BOOK A PRIVATE TOUR</CTAButton>
+      </div>
+    </motion.footer>
   );
 }
 
@@ -688,21 +783,18 @@ export default function HypercarlLanding() {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100vw', height: '100vh',
-      background: '#000', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'relative', width: '100%', minHeight: '100vh',
+      background: '#000', overflowX: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
       <Cursor />
 
-      {/* Ambient radial gradient */}
       <div style={{ position: 'absolute', inset: 0,
         background: 'radial-gradient(ellipse 90% 55% at 50% 65%, #1c0800 0%, #000 75%)', zIndex: 0 }} />
 
-      {/* Grid */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none', opacity: 0.043,
         backgroundImage: `linear-gradient(rgba(255,59,0,0.7) 1px, transparent 1px),linear-gradient(90deg, rgba(255,59,0,0.7) 1px, transparent 1px)`,
         backgroundSize: '62px 62px' }} />
 
-      {/* Scan line */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 4, pointerEvents: 'none', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', width: '100%', height: 2,
           background: 'linear-gradient(90deg, transparent, rgba(255,59,0,0.13), transparent)',
@@ -712,14 +804,12 @@ export default function HypercarlLanding() {
       <ParticleField isActive={isHovering} />
       <SpotlightReveal onHoverChange={setIsHovering} />
 
-      {/* Corner brackets */}
       {[{ top:14,left:14,borderTop:'1.5px solid #FF3B00',borderLeft:'1.5px solid #FF3B00' },
         { top:14,right:14,borderTop:'1.5px solid #FF3B00',borderRight:'1.5px solid #FF3B00' },
         { bottom:14,left:14,borderBottom:'1.5px solid #FF3B00',borderLeft:'1.5px solid #FF3B00' },
         { bottom:14,right:14,borderBottom:'1.5px solid #FF3B00',borderRight:'1.5px solid #FF3B00' }
       ].map((s, i) => <div key={i} style={{ position:'absolute', width:22, height:22, zIndex:20, pointerEvents:'none', ...s }} />)}
 
-      {/* Progress bar */}
       <motion.div style={{ position:'absolute', bottom:0, left:0, height:2,
         background:`linear-gradient(90deg, ${ACCENT}, #ff7a00)`, zIndex:25,
         boxShadow:`0 0 14px ${ACCENT_GLOW}` }}
@@ -728,15 +818,12 @@ export default function HypercarlLanding() {
 
       <SpeedoHUD isActive={isHovering} />
 
-      {/* ── CONTENT ── */}
-      <div style={{ position:'relative', zIndex:15, width:'100%', height:'100%',
-        display:'flex', flexDirection:'column', justifyContent:'space-between',
-        padding:'28px 32px 24px', pointerEvents:'none', perspective:'1200px' }}>
+      <div style={{ position:'relative', zIndex:15, width:'100%', minHeight:'100vh',
+        display:'flex', flexDirection:'column', padding:'28px 32px 80px', pointerEvents:'auto', perspective:'1200px' }}>
 
-        {/* TOP NAV */}
         <motion.div initial={{ opacity:0, y:-22 }} animate={{ opacity:1, y:0 }}
           transition={{ duration:0.9, delay:0.1, ease:[0.16,1,0.3,1] }}
-          style={{ display:'flex', alignItems:'center', justifyContent:'space-between', pointerEvents:'auto' }}>
+          style={{ display:'flex', alignItems:'center', justifyContent:'space-between', pointerEvents:'auto', position:'sticky', top:18, zIndex:30, padding:'10px 0 20px' }}>
 
           <div style={{ display:'flex', alignItems:'center', gap:13 }}>
             <motion.div animate={{ rotateY:[0,10,0,-10,0] }} transition={{ duration:9, repeat:Infinity, ease:'easeInOut' }}
@@ -751,7 +838,7 @@ export default function HypercarlLanding() {
             </div>
           </div>
 
-          <div style={{ display:'flex', gap:28 }}>
+          <div style={{ display:'flex', gap:28, flexWrap:'wrap', justifyContent:'flex-end' }}>
             {NAV_ITEMS.map((item, i) => (
               <motion.button key={item.label}
                 initial={{ opacity:0, y:-10 }} animate={{ opacity:1, y:0 }}
@@ -769,132 +856,153 @@ export default function HypercarlLanding() {
           </div>
         </motion.div>
 
-        {/* HERO TEXT */}
-        <div style={{ maxWidth:680 }}>
-          <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
-            transition={{ delay:0.35 }}
-            style={{ fontFamily:FONT_DISPLAY, fontSize:8.5, fontWeight:500, color:ACCENT,
-              letterSpacing:'0.38em', textTransform:'uppercase', marginBottom:16 }}>
-            — REVUELTO V12 HYBRID / 1001 CV —
-          </motion.div>
+        <section id="hero" style={{ minHeight:'calc(100vh - 140px)', display:'flex', flexDirection:'column', justifyContent:'space-between', paddingTop:28, paddingBottom:32 }}>
+          <div style={{ maxWidth:760 }}>
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
+              transition={{ delay:0.35 }}
+              style={{ fontFamily:FONT_DISPLAY, fontSize:8.5, fontWeight:500, color:ACCENT,
+                letterSpacing:'0.38em', textTransform:'uppercase', marginBottom:16 }}>
+              — REVUELTO V12 HYBRID / 1001 CV —
+            </motion.div>
 
-          <div style={{ perspective:'900px', transformStyle:'preserve-3d' }}>
-            {HERO_WORDS.map((word, i) => (
-              <motion.span key={i}
-                initial={{ opacity:0, y:42, rotateX:-42 }}
-                animate={{ opacity:1, y:0, rotateX:0 }}
-                transition={{ duration:0.82, delay:0.48+i*0.085, ease:[0.16,1,0.3,1] }}
-                style={{ display:'inline-block', fontFamily:FONT_DISPLAY,
-                  fontSize:'clamp(20px, 3.3vw, 40px)', fontWeight:900,
-                  color: HIGHLIGHT_WORDS.has(word) ? ACCENT : '#fff',
-                  letterSpacing:'0.04em', textTransform:'uppercase', lineHeight:1.1,
-                  marginRight:'0.28em',
-                  textShadow: HIGHLIGHT_WORDS.has(word) ? `0 0 40px ${ACCENT_GLOW}` : '0 2px 24px rgba(0,0,0,0.85)',
-                  transformOrigin:'bottom center', transformStyle:'preserve-3d' }}>
-                {word}
-              </motion.span>
-            ))}
+            <div style={{ perspective:'900px', transformStyle:'preserve-3d' }}>
+              {HERO_WORDS.map((word, i) => (
+                <motion.span key={i}
+                  initial={{ opacity:0, y:42, rotateX:-42 }}
+                  animate={{ opacity:1, y:0, rotateX:0 }}
+                  transition={{ duration:0.82, delay:0.48+i*0.085, ease:[0.16,1,0.3,1] }}
+                  style={{ display:'inline-block', fontFamily:FONT_DISPLAY,
+                    fontSize:'clamp(20px, 3.3vw, 44px)', fontWeight:900,
+                    color: HIGHLIGHT_WORDS.has(word) ? ACCENT : '#fff',
+                    letterSpacing:'0.04em', textTransform:'uppercase', lineHeight:1.1,
+                    marginRight:'0.28em',
+                    textShadow: HIGHLIGHT_WORDS.has(word) ? `0 0 40px ${ACCENT_GLOW}` : '0 2px 24px rgba(0,0,0,0.85)',
+                    transformOrigin:'bottom center', transformStyle:'preserve-3d' }}>
+                  {word}
+                </motion.span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* BOTTOM ROW */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end',
-          gap:16, flexWrap:'wrap', pointerEvents:'auto' }}>
-
-          <div id="tech" style={{ display:'flex', flexDirection:'column', gap:12, alignItems:'flex-start' }}>
-            <div style={{ fontFamily: FONT_MONO, fontSize: 7, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.24em', textTransform: 'uppercase' }}>
-              LIVE BACKEND CONNECTED
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', gap:20, flexWrap:'wrap', marginTop:24 }}>
+            <div style={{ maxWidth:430, fontFamily:FONT_BODY, fontSize:14, color:'rgba(255,255,255,0.7)', lineHeight:1.6 }}>
+              Shaping a new class of hypercar experience through a fusion of combustion force, electric refinement, and software-defined performance.
             </div>
             <StatsCard />
           </div>
+        </section>
 
-          <motion.div id="performance" initial={{ opacity:0, x:42 }} animate={{ opacity:1, x:0 }}
-            transition={{ duration:1.05, delay:0.85, ease:[0.16,1,0.3,1] }}
-            style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:11, maxWidth:420 }}>
-            <div style={{ fontFamily:FONT_DISPLAY, fontSize:'clamp(10px, 1.55vw, 14px)', fontWeight:700,
-              color:'#fff', letterSpacing:'0.17em', textTransform:'uppercase', textAlign:'right',
-              lineHeight:1.48, textShadow:'0 0 30px rgba(0,0,0,0.95)' }}>
-              NEXT-GEN AERODYNAMIC<br/>ARCHITECTURE
+        <div style={{ display:'grid', gap:24, marginTop:14 }}>
+          <section id="models" style={{ scrollMarginTop:90, background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.2)', borderRadius:24, padding:'28px', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)' }}>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:9, color:ACCENT, letterSpacing:'0.32em', textTransform:'uppercase', marginBottom:10 }}>
+              MODELS / VISION LINEUP
             </div>
-            <div style={{ fontFamily:FONT_BODY, fontSize:10, fontWeight:400,
-              color:'rgba(255,255,255,0.32)', letterSpacing:'0.22em', textTransform:'uppercase', textAlign:'right' }}>
-              / ghost — Downforce Optimization &amp; Performance Dynamics
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:24, fontWeight:700, color:'#fff', marginBottom:16 }}>
+              Three sculpted machines, each tuned for a different kind of obsession.
             </div>
-
-            <div id="models" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.2)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
-                {loadingCars ? 'SYNCING WITH BACKEND…' : errorMessage ? 'BACKEND OFFLINE' : 'LIVE INVENTORY'}
-              </div>
-              <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom: 10 }}>
-                {cars.map((car) => {
-                  const carId = car._id || car.id;
-                  return (
-                    <button key={carId} onClick={() => setSelectedCarId(carId)} style={{ border: `1px solid ${selectedCar && (selectedCar._id || selectedCar.id) === carId ? ACCENT : 'rgba(255,255,255,0.14)'}`, background: selectedCar && (selectedCar._id || selectedCar.id) === carId ? 'rgba(255,59,0,0.12)' : 'rgba(255,255,255,0.04)', color: '#fff', padding:'7px 10px', fontFamily: FONT_MONO, fontSize: 7, letterSpacing: '0.16em', textTransform: 'uppercase', cursor: 'pointer' }}>
-                      {car.brand}
-                    </button>
-                  );
-                })}
-              </div>
-              {selectedCar ? (
-                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-                    {selectedCar.brand} {selectedCar.model}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
+              {MODEL_SHOWCASES.map((model) => (
+                <motion.div key={model.name} whileHover={{ y:-6, scale:1.01 }} style={{ background:'rgba(0,0,0,0.28)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:16 }}>
+                  <div style={{ fontFamily:FONT_MONO, fontSize:7, color:'rgba(255,255,255,0.38)', letterSpacing:'0.2em', textTransform:'uppercase', marginBottom:8 }}>{model.badge}</div>
+                  <div style={{ fontFamily:FONT_DISPLAY, fontSize:14, color:'#fff', letterSpacing:'0.16em', textTransform:'uppercase', marginBottom:8 }}>{model.name}</div>
+                  <div style={{ fontFamily:FONT_BODY, fontSize:12, color:'rgba(255,255,255,0.7)', lineHeight:1.6, marginBottom:10 }}>{model.blurb}</div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                    {model.metrics.map((metric) => (
+                      <span key={metric} style={{ fontFamily:FONT_MONO, fontSize:7, color:ACCENT, border:'1px solid rgba(255,59,0,0.25)', padding:'5px 8px', borderRadius:999 }}>{metric}</span>
+                    ))}
                   </div>
-                  <div style={{ fontFamily: FONT_BODY, fontSize: 10, color: 'rgba(255,255,255,0.58)' }}>
-                    {selectedCar.specs?.horsepower || '—'} hp • {selectedCar.specs?.topSpeed || '—'} km/h
-                  </div>
-                  {priceSummary ? (
-                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 9, color: ACCENT, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 4 }}>
-                      EST. {priceSummary.totalPrice?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '—'}
-                    </div>
-                  ) : null}
+                </motion.div>
+              ))}
+            </div>
+            <div style={{ marginTop:20, display:'grid', gridTemplateColumns:'1.1fr 0.9fr', gap:18, alignItems:'stretch' }}>
+              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.09)', borderRadius:18, padding:18 }}>
+                <div style={{ fontFamily:FONT_DISPLAY, fontSize:9, color:ACCENT, letterSpacing:'0.24em', textTransform:'uppercase', marginBottom:8 }}>
+                  {loadingCars ? 'SYNCING WITH BACKEND…' : errorMessage ? 'BACKEND OFFLINE' : 'LIVE INVENTORY'}
                 </div>
-              ) : null}
-            </div>
-
-            <div id="tech" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.18)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
-                TECHNOLOGY
-              </div>
-              <div style={{ display:'grid', gap:8 }}>
-                {TECH_FEATURES.map((feature) => (
-                  <div key={feature.title} style={{ padding:'8px 10px', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,255,255,0.06)', borderRadius:8 }}>
-                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: '#fff', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 2 }}>{feature.title}</div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 10, color: 'rgba(255,255,255,0.58)' }}>{feature.text}</div>
+                <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:10 }}>
+                  {cars.map((car) => {
+                    const carId = car._id || car.id;
+                    return (
+                      <button key={carId} onClick={() => setSelectedCarId(carId)} style={{ border: `1px solid ${selectedCar && (selectedCar._id || selectedCar.id) === carId ? ACCENT : 'rgba(255,255,255,0.14)'}`, background: selectedCar && (selectedCar._id || selectedCar.id) === carId ? 'rgba(255,59,0,0.12)' : 'rgba(255,255,255,0.04)', color: '#fff', padding:'7px 10px', fontFamily: FONT_MONO, fontSize: 7, letterSpacing: '0.16em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                        {car.brand}
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedCar ? (
+                  <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 12, fontWeight: 700, color: '#fff', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                      {selectedCar.brand} {selectedCar.model}
+                    </div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 11, color: 'rgba(255,255,255,0.62)' }}>
+                      {selectedCar.specs?.horsepower || '—'} hp • {selectedCar.specs?.topSpeed || '—'} km/h
+                    </div>
+                    {priceSummary ? (
+                      <div style={{ fontFamily: FONT_DISPLAY, fontSize: 9, color: ACCENT, letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 4 }}>
+                        EST. {priceSummary.totalPrice?.toLocaleString?.('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) || '—'}
+                      </div>
+                    ) : null}
                   </div>
-                ))}
+                ) : null}
+              </div>
+              <div style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.09)', borderRadius:18, padding:18 }}>
+                <div style={{ fontFamily:FONT_DISPLAY, fontSize:9, color:ACCENT, letterSpacing:'0.24em', textTransform:'uppercase', marginBottom:10 }}>CONFIGURATION</div>
+                <div style={{ fontFamily:FONT_BODY, fontSize:12, color:'rgba(255,255,255,0.7)', lineHeight:1.7 }}>
+                  Every Velox Hypercraft build can be tailored with forged wheels, ceramic braking, bespoke interior tone, and a personal launch theme driven by your signature profile.
+                </div>
               </div>
             </div>
+          </section>
 
-            <div id="performance" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.18)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
-                PERFORMANCE
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                {PERFORMANCE_POINTS.map((point) => (
-                  <div key={point.label} style={{ padding:'8px 10px', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,255,255,0.06)', borderRadius:8 }}>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 7, color: 'rgba(255,255,255,0.32)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 2 }}>{point.label}</div>
-                    <div style={{ fontFamily: FONT_DISPLAY, fontSize: 11, color: '#fff', fontWeight: 700 }}>{point.value}</div>
-                  </div>
-                ))}
-              </div>
+          <section id="tech" style={{ scrollMarginTop:90, background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.2)', borderRadius:24, padding:'28px', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)' }}>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:9, color:ACCENT, letterSpacing:'0.32em', textTransform:'uppercase', marginBottom:10 }}>TECH / INTELLIGENCE</div>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:24, fontWeight:700, color:'#fff', marginBottom:18 }}>Software-defined performance, sculpted into the hardware.</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16 }}>
+              {TECH_PILLARS.map((item) => (
+                <div key={item.title} style={{ background:'rgba(0,0,0,0.28)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:16 }}>
+                  <div style={{ fontFamily:FONT_DISPLAY, fontSize:12, color:'#fff', letterSpacing:'0.16em', textTransform:'uppercase', marginBottom:8 }}>{item.title}</div>
+                  <div style={{ fontFamily:FONT_BODY, fontSize:12, color:'rgba(255,255,255,0.7)', lineHeight:1.6 }}>{item.text}</div>
+                </div>
+              ))}
             </div>
+          </section>
 
-            <div id="contact" style={{ width:'100%', background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.18)', borderRadius:12, padding:'12px 14px', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)' }}>
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 8, color: ACCENT, letterSpacing: '0.24em', textTransform: 'uppercase', marginBottom: 8 }}>
-                CONTACT
-              </div>
-              <div style={{ display:'grid', gap:6, marginBottom: 10 }}>
-                {CONTACT_DETAILS.map((item) => (
-                  <div key={item.label} style={{ display:'flex', justifyContent:'space-between', gap:12, fontFamily: FONT_MONO, fontSize: 7, color:'rgba(255,255,255,0.6)', letterSpacing:'0.16em', textTransform:'uppercase' }}>
-                    <span>{item.label}</span>
-                    <span style={{ color: '#fff' }}>{item.value}</span>
-                  </div>
-                ))}
-              </div>
+          <section id="performance" style={{ scrollMarginTop:90, background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.2)', borderRadius:24, padding:'28px', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)' }}>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:9, color:ACCENT, letterSpacing:'0.32em', textTransform:'uppercase', marginBottom:10 }}>PERFORMANCE / TRACK DNA</div>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:24, fontWeight:700, color:'#fff', marginBottom:18 }}>The numbers are impressive, but the feeling is what matters.</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(180px, 1fr))', gap:16, marginBottom:18 }}>
+              {PERFORMANCE_TILES.map((item) => (
+                <div key={item.label} style={{ background:'rgba(0,0,0,0.28)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:16 }}>
+                  <div style={{ fontFamily:FONT_MONO, fontSize:7, color:'rgba(255,255,255,0.35)', letterSpacing:'0.16em', textTransform:'uppercase', marginBottom:6 }}>{item.label}</div>
+                  <div style={{ fontFamily:FONT_DISPLAY, fontSize:18, color:'#fff', fontWeight:700 }}>{item.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ fontFamily:FONT_BODY, fontSize:13, color:'rgba(255,255,255,0.7)', lineHeight:1.8 }}>
+              From launch control to high-speed stability, every system is calibrated to feel immediate and alive. The result is a machine that feels effortless at speed and cinematic at rest.
+            </div>
+          </section>
+
+          <section id="contact" style={{ scrollMarginTop:90, background:'rgba(255,255,255,0.03)', border:'0.5px solid rgba(255,59,0,0.2)', borderRadius:24, padding:'28px', backdropFilter:'blur(18px)', WebkitBackdropFilter:'blur(18px)' }}>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:9, color:ACCENT, letterSpacing:'0.32em', textTransform:'uppercase', marginBottom:10 }}>CONTACT / EXPERIENCE</div>
+            <div style={{ fontFamily:FONT_DISPLAY, fontSize:24, fontWeight:700, color:'#fff', marginBottom:18 }}>Reserve a private tour and step inside the next generation of hypercar design.</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16, marginBottom:18 }}>
+              {CONTACT_OPTIONS.map((option) => (
+                <div key={option.title} style={{ background:'rgba(0,0,0,0.28)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:16, padding:16 }}>
+                  <div style={{ fontFamily:FONT_DISPLAY, fontSize:12, color:'#fff', letterSpacing:'0.16em', textTransform:'uppercase', marginBottom:8 }}>{option.title}</div>
+                  <div style={{ fontFamily:FONT_BODY, fontSize:12, color:'rgba(255,255,255,0.7)', lineHeight:1.6 }}>{option.text}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:12, alignItems:'center' }}>
+              {CONTACT_DETAILS.map((item) => (
+                <div key={item.label} style={{ fontFamily:FONT_MONO, fontSize:8, color:'rgba(255,255,255,0.7)', letterSpacing:'0.16em', textTransform:'uppercase', padding:'10px 12px', border:'1px solid rgba(255,255,255,0.08)', borderRadius:999 }}>
+                  <span style={{ color:'rgba(255,255,255,0.4)', marginRight:6 }}>{item.label}</span>{item.value}
+                </div>
+              ))}
               <CTAButton id="contact-cta" onClick={() => window.location.href = 'mailto:hello@veloxhypercraft.com'}>BOOK A PRIVATE TOUR</CTAButton>
             </div>
-          </motion.div>
+          </section>
         </div>
       </div>
 
